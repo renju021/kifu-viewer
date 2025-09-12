@@ -137,43 +137,7 @@ function parseInput(text){
 }
 
 // --------------------
-// URLパラメータで自動読み込み
-// --------------------
-function getQueryParam(name) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(name);
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  let text = null;
-  let format = null;
-
-  if(getQueryParam('sgf')) {
-    text = decodeURIComponent(getQueryParam('sgf'));
-    format = 'sgf';
-  } else if(getQueryParam('b')) {
-    text = decodeURIComponent(getQueryParam('b'));
-    format = 'b';
-  } else if(getQueryParam('c')) {
-    text = decodeURIComponent(getQueryParam('c'));
-    format = 'c';
-  }
-
-  if(text && format) {
-    let parsedMoves = [];
-    if(format === 'sgf') parsedMoves = parseSGF(text);
-    else if(format === 'b') parsedMoves = parseBFormat(text);
-    else if(format === 'c') parsedMoves = parseCFormat(text);
-
-    moves = parsedMoves;
-    currentMove = moves.length;
-    redrawBoard();
-    document.getElementById('sgf-input').value = text;
-  }
-});
-
-// --------------------
-// 描画
+// 描画関数
 // --------------------
 function redrawBoard(){
   const size=parseFloat(canvas.style.width);
@@ -235,6 +199,7 @@ function redrawBoard(){
     ctx.fillText(i+1,cx,cy);
   }
 
+  // 描画用座標配列を表示
   let displayStr = '';
   for(const [x,y] of moves){
     displayStr += x.toString(16) + y.toString(16);
@@ -242,13 +207,16 @@ function redrawBoard(){
   coordsDisplay.textContent = displayStr;
 }
 
+// --------------------
+// ナビゲーション関数
+// --------------------
 function gotoMove(n){
   currentMove=Math.max(0,Math.min(n,moves.length));
   redrawBoard();
 }
 
 // --------------------
-// ボタンイベント
+// イベントリスナー
 // --------------------
 document.getElementById('load-sgf').addEventListener('click',()=>{
   const text=document.getElementById('sgf-input').value;
