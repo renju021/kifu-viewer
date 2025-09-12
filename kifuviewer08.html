@@ -45,6 +45,7 @@ const BOARD_SIZE = 15;
 const STAR_POINTS = [[3,3],[11,3],[3,11],[11,11],[7,7]];
 let moves = [];
 let currentMove = 0;
+let inputText = '';
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
@@ -64,6 +65,9 @@ function resizeCanvas(){
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
+// --------------------
+// パース関数
+// --------------------
 function parseSGF(sgfText){
   const regex = /[BW]\[([a-o]{2})\]/g;
   const result = [];
@@ -76,6 +80,101 @@ function parseSGF(sgfText){
   return result;
 }
 
+function parseBFormat(bText){
+  const mvIndex = bText.indexOf('mv=');
+  let hex = mvIndex>=0 ? bText.slice(mvIndex+3) : bText;
+  const startIndex = hex.indexOf('77');
+  if(startIndex>=0) hex = hex.slice(startIndex);
+  const coords = [];
+  for(let i=0;i+1<hex.length;i+=2){
+    const x = parseInt(hex[i],16);
+    const y = parseInt(hex[i+1],16);
+    if(!isNaN(x)&&!isNaN(y)) coords.push([x,y]);
+  }
+  return coords;
+}
+
+function parseCFormat(cText){
+  const clean=cText.replace(/\s+/g,'');
+  const regex=/([a-o])(\d{1,2})/ig;
+  const result=[];
+  let match;
+  while((match=regex.exec(clean))!==null){
+    const x=match[1].toLowerCase().charCodeAt(0)-97;
+    const y=15-parseInt(match[2]);
+    if(x>=0&&x<15&&y>=0&&y<15) result.push([x,y]);
+  }
+  return result;
+}
+
+function detectFormat(text){
+  if(text.includes(";GM")) return "sgf";
+  if(/^\s*\d+\)/m.test(text)) return "c2";
+  if(/^[a-o][1-9]([0-9]?)([a-o][1-9]([0-9]?))*$/i.test(text.replace(/\s+/g,''))) return "c";
+  if(text.includes("mv=")||/[0-9a-f]{2,}/i.test(text.replace(/\s+/g,''))) return "b";
+  return "unknown";
+}
+
+function fromC2toC(input){
+  const lines=input.split(/\r?\n/);
+  let result="";
+  for(let line of lines){
+    const match=line.match(/^\s*\d+\)\s*([a-o]\d{1,2})/i);
+    if(match) result+=match[1];
+  }
+  return result;
+}
+
+function parseInput(text){
+  inputText = text;
+  let format=detectFormat(text);
+  if(format==="c2") text=fromC2toC(text), format="c";
+  let parsed = [];
+  if(format==="sgf") parsed = parseSGF(text);
+  else if(format==="b") parsed = parseBFormat(text);
+  else if(format==="c") parsed = parseCFormat(text);
+  return parsed;
+}
+
+// --------------------
+// URLパラメータで自動読み込み
+// --------------------
+function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  let text = null;
+  let format = null;
+
+  if(getQueryParam('sgf')) {
+    text = decodeURIComponent(getQueryParam('sgf'));
+    format = 'sgf';
+  } else if(getQueryParam('b')) {
+    text = decodeURIComponent(getQueryParam('b'));
+    format = 'b';
+  } else if(getQueryParam('c')) {
+    text = decodeURIComponent(getQueryParam('c'));
+    format = 'c';
+  }
+
+  if(text && format) {
+    let parsedMoves = [];
+    if(format === 'sgf') parsedMoves = parseSGF(text);
+    else if(format === 'b') parsedMoves = parseBFormat(text);
+    else if(format === 'c') parsedMoves = parseCFormat(text);
+
+    moves = parsedMoves;
+    currentMove = moves.length;
+    redrawBoard();
+    document.getElementById('sgf-input').value = text;
+  }
+});
+
+// --------------------
+// 描画
+// --------------------
 function redrawBoard(){
   const size=parseFloat(canvas.style.width);
   const margin=size*0.07;
@@ -104,6 +203,21 @@ function redrawBoard(){
     ctx.fill();
   }
 
+  ctx.fillStyle='black';
+  ctx.font=`${step*0.45}px sans-serif`;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  for(let i=0;i<BOARD_SIZE;i++){
+    const x=margin+i*step;
+    const y=size-margin/2;
+    ctx.fillText(String.fromCharCode(97+i),x,y);
+  }
+  for(let i=0;i<BOARD_SIZE;i++){
+    const x=margin/2;
+    const y=margin+(BOARD_SIZE-1-i)*step;
+    ctx.fillText((i+1).toString(),x,y);
+  }
+
   const radius=step*0.43;
   for(let i=0;i<currentMove;i++){
     const [x,y]=moves[i];
@@ -118,12 +232,14 @@ function redrawBoard(){
 
     ctx.fillStyle=(i===currentMove-1)?'red':(color==='black'?'white':'black');
     ctx.font=`bold ${radius*1.25}px sans-serif`;
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
     ctx.fillText(i+1,cx,cy);
   }
 
-  coordsDisplay.textContent = moves.map(([x,y])=>x.toString(16)+y.toString(16)).join('');
+  let displayStr = '';
+  for(const [x,y] of moves){
+    displayStr += x.toString(16) + y.toString(16);
+  }
+  coordsDisplay.textContent = displayStr;
 }
 
 function gotoMove(n){
@@ -131,10 +247,13 @@ function gotoMove(n){
   redrawBoard();
 }
 
+// --------------------
+// ボタンイベント
+// --------------------
 document.getElementById('load-sgf').addEventListener('click',()=>{
   const text=document.getElementById('sgf-input').value;
   if(!text) return;
-  moves=parseSGF(text);
+  moves=parseInput(text);
   currentMove=moves.length;
   redrawBoard();
 });
@@ -153,16 +272,6 @@ document.getElementById('prev10').addEventListener('click',()=>gotoMove(currentM
 document.getElementById('next1').addEventListener('click',()=>gotoMove(currentMove+1));
 document.getElementById('next10').addEventListener('click',()=>gotoMove(currentMove+10));
 document.getElementById('last').addEventListener('click',()=>gotoMove(moves.length));
-
-// --- URLクエリから自動読み込み ---
-const params = new URLSearchParams(window.location.search);
-if(params.has("sgf")){
-  const sgfText = decodeURIComponent(params.get("sgf"));
-  document.getElementById('sgf-input').value = sgfText;
-  moves = parseSGF(sgfText);
-  currentMove = moves.length;
-  redrawBoard();
-}
 </script>
 
 </body>
