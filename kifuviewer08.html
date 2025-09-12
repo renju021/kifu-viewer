@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Board Viewer</title>
+<style>
+  body { font-family: sans-serif; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; }
+  #sgf-container { margin:10px 0; display:flex; flex-direction:column; align-items:center; gap:5px; }
+  #sgf-input { font-size:18px; width:90vw; max-width:600px; }
+  #sgf-buttons { display:flex; gap:10px; }
+  #sgf-buttons button { font-size:18px; padding:5px 10px; cursor:pointer; }
+  #coords-display { margin-top:10px; font-family:monospace; word-break:break-all; }
+  #controls { display:flex; justify-content:center; flex-wrap:wrap; margin:5px 0 10px 0; gap:5px; }
+  button.nav-btn { font-size:20px; font-weight:bold; padding:10px 15px; min-width:60px; min-height:50px; cursor:pointer; }
+  button.nav-btn.blue { color:white; background-color:blue; }
+  canvas { background-color:#f5deb3; touch-action:manipulation; display:block; }
+</style>
+</head>
+<body>
+
+<div id="sgf-container">
+  <input type="text" id="sgf-input" placeholder="棋譜を貼ってください">
+  <div id="sgf-buttons">
+    <button id="load-sgf">読み込み</button>
+    <button id="clear-sgf">クリア</button>
+  </div>
+</div>
+
+<div id="coords-display"></div>
+
+<canvas id="board"></canvas>
+
+<div id="controls">
+  <button class="nav-btn" id="first">|<</button>
+  <button class="nav-btn blue" id="prev10"><<</button>
+  <button class="nav-btn" id="prev1"><</button>
+  <button class="nav-btn" id="next1">></button>
+  <button class="nav-btn blue" id="next10">>></button>
+  <button class="nav-btn" id="last">>|</button>
+</div>
+
+<script>
+const BOARD_SIZE = 15;
+const STAR_POINTS = [[3,3],[11,3],[3,11],[11,11],[7,7]];
+let moves = [];
+let currentMove = 0;
+
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+const coordsDisplay = document.getElementById('coords-display');
+
+function resizeCanvas(){
+  const size = Math.min(window.innerWidth, window.innerHeight)*0.95;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.width = size+'px';
+  canvas.style.height = size+'px';
+  canvas.width = size*dpr;
+  canvas.height = size*dpr;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+  redrawBoard();
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function parseSGF(sgfText){
+  const regex = /[BW]\[([a-o]{2})\]/g;
+  const result = [];
+  let match;
+  while((match=regex.exec(sgfText))!==null){
+    let x=match[1].charCodeAt(0)-97;
+    let y=match[1].charCodeAt(1)-97;
+    result.push([x,y]);
+  }
+  return result;
+}
+
+function redrawBoard(){
+  const size=parseFloat(canvas.style.width);
+  const margin=size*0.07;
+  const step=(size-2*margin)/(BOARD_SIZE-1);
+  ctx.clearRect(0,0,size,size);
+
+  ctx.strokeStyle='black';
+  ctx.lineWidth=1;
+  for(let i=0;i<BOARD_SIZE;i++){
+    ctx.beginPath();
+    ctx.moveTo(margin,margin+i*step);
+    ctx.lineTo(size-margin,margin+i*step);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(margin+i*step,margin);
+    ctx.lineTo(margin+i*step,size-margin);
+    ctx.stroke();
+  }
+
+  for(const [sx,sy] of STAR_POINTS){
+    const cx=margin+sx*step;
+    const cy=margin+(BOARD_SIZE-1-sy)*step;
+    ctx.beginPath();
+    ctx.arc(cx,cy,step*0.07,0,Math.PI*2);
+    ctx.fillStyle='black';
+    ctx.fill();
+  }
+
+  const radius=step*0.43;
+  for(let i=0;i<currentMove;i++){
+    const [x,y]=moves[i];
+    const cx=margin+x*step;
+    const cy=margin+y*step;
+    const color=i%2===0?'black':'white';
+
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle=(i===currentMove-1)?'red':(color==='black'?'white':'black');
+    ctx.font=`bold ${radius*1.25}px sans-serif`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(i+1,cx,cy);
+  }
+
+  coordsDisplay.textContent = moves.map(([x,y])=>x.toString(16)+y.toString(16)).join('');
+}
+
+function gotoMove(n){
+  currentMove=Math.max(0,Math.min(n,moves.length));
+  redrawBoard();
+}
+
+document.getElementById('load-sgf').addEventListener('click',()=>{
+  const text=document.getElementById('sgf-input').value;
+  if(!text) return;
+  moves=parseSGF(text);
+  currentMove=moves.length;
+  redrawBoard();
+});
+
+document.getElementById('clear-sgf').addEventListener('click',()=>{
+  document.getElementById('sgf-input').value='';
+  moves=[];
+  currentMove=0;
+  coordsDisplay.textContent = '';
+  redrawBoard();
+});
+
+document.getElementById('first').addEventListener('click',()=>gotoMove(0));
+document.getElementById('prev1').addEventListener('click',()=>gotoMove(currentMove-1));
+document.getElementById('prev10').addEventListener('click',()=>gotoMove(currentMove-10));
+document.getElementById('next1').addEventListener('click',()=>gotoMove(currentMove+1));
+document.getElementById('next10').addEventListener('click',()=>gotoMove(currentMove+10));
+document.getElementById('last').addEventListener('click',()=>gotoMove(moves.length));
+
+// --- URLクエリから自動読み込み ---
+const params = new URLSearchParams(window.location.search);
+if(params.has("sgf")){
+  const sgfText = decodeURIComponent(params.get("sgf"));
+  document.getElementById('sgf-input').value = sgfText;
+  moves = parseSGF(sgfText);
+  currentMove = moves.length;
+  redrawBoard();
+}
+</script>
+
+</body>
+</html>
