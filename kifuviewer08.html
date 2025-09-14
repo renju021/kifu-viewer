@@ -24,21 +24,25 @@
 
 #controls {
   display: flex;
-  justify-content: space-between; /* 両端に揃える */
+  justify-content: space-between;
   gap: 4px;
-  width: calc(90vw * 0.95);       /* 盤と同じ幅に揃える */
+  width: 90vw;
   max-width: 600px;
   margin: 5px 0 10px 0;
+  height: auto;  /* ここを auto に */
+
 }
 
 button.nav-btn {
-  flex: 1;        /* 均等に広がる */
-  min-width: 0;   /* これ重要：幅が制限されてもはみ出さない */
+  flex: 1 1 auto;   /* 横方向にだけ伸びる */
+  min-width: 0;
+  box-sizing: border-box;
+  height: 45px;     /* 高さ固定 */
+  max-height: 45px; /* 高さ固定 */
   font-size: 16px;
-  font-weight: bold;
-  height: 45px;
-  max-height: 45px;  /* iPadで縦長を避けるために追加 */
-  border-radius: 6px; /* 角丸 */
+  border-radius: 6px;
+
+
 }
 
 button.nav-btn.blue {
