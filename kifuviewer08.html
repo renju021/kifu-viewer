@@ -11,29 +11,39 @@
   #sgf-buttons { display:flex; gap:10px; }
   #sgf-buttons button { font-size:18px; padding:5px 10px; cursor:pointer; }
   #coords-display { margin-top:10px; font-family:monospace; word-break:break-all; }
-  #controls {
+
+  /* 動作確認用の棋譜データを非表示 */
+  #coords-display { display: none; }
+
+  /* 盤とボタンを揃える */
+#board, #controls {
+  width: 90vw;          /* 盤と同じ幅に */
+  max-width: 600px;     /* 盤と同じ最大幅 */
+  margin: 0 auto;       /* 中央寄せ */
+}
+
+#controls {
   display: flex;
-  justify-content: center;
-  flex-wrap: nowrap; /* 横一列 */
+  justify-content: space-between; /* 両端に揃える */
+  gap: 4px;
+  width: calc(90vw * 0.95);       /* 盤と同じ幅に揃える */
+  max-width: 600px;
   margin: 5px 0 10px 0;
-  gap: 3px; /* ボタン間の隙間を少し減らす */
 }
 
-  button.nav-btn {
-  font-size: 14px;   /* 少し小さく */
+button.nav-btn {
+  flex: 1;        /* 均等に広がる */
+  min-width: 0;   /* これ重要：幅が制限されてもはみ出さない */
+  font-size: 16px;
   font-weight: bold;
-  padding: 6px 8px;  /* 横幅を縮める */
-  min-width: 40px;    /* 最小幅を小さく */
-  min-height: 45px;   /* 高さは少し下げる */
-  cursor: pointer;
-  flex: 1 1 auto;     /* ボタンが均等に横幅を割り振る */
-  text-align: center;
+  height: 45px;
 }
 
-  button.nav-btn.blue {
+button.nav-btn.blue {
   color: white;
   background-color: #00bfff; /* 水色 */
 }
+
   canvas { background-color:#f5deb3; touch-action:manipulation; display:block; }
 </style>
 </head>
