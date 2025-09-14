@@ -61,14 +61,26 @@ body {
 }
 
 /* 各ナビゲーションボタンの基本スタイル */
-button.nav-btn { 
-  font-size: 18px;           /* 文字サイズ18px */
-  font-weight: bold;         /* 太字 */
-  padding: 10px 15px;        /* 上下10px、左右15pxの余白 */
-  min-width: 50px;           /* 最小幅50pxを確保 */
-  min-height: 50px;          /* 最小高さ50pxを確保 */
-  cursor: pointer;           /* ホバー時に手の形カーソル */
+/* デフォルトはiPhone用サイズ */
+button.nav-btn {
+  font-size: 18px;
+  padding: 10px 15px;
+  min-width: 50px;
+  min-height: 45px;
 }
+
+/* iPad以上の画面用 */
+@media (min-width: 768px) {
+  button.nav-btn {
+    font-size: 20px;       /* 文字を大きく */
+    padding: 15px 20px;    /* パディングを大きく */
+    min-width: 70px;       /* 幅を広げる */
+    min-height: 55px;      /* 高さを広げる */
+  }
+}
+
+
+
 
 /* 水色ボタンだけの追加スタイル */
 button.nav-btn.blue { 
