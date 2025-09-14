@@ -5,88 +5,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kifu Viewer</title>
 <style>
+/* ページ全体の基本設定 */
 body { 
-    font-family: sans-serif; 
-    margin: 0; 
-    padding: 0; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
+  font-family: sans-serif; /* 文字のフォントをサンセリフ系に指定 */
+  margin: 0;               /* ページ全体の余白をゼロに */
+  padding: 0;              /* ページ全体の内側余白をゼロに */
+  display: flex;           /* フレックスボックスでレイアウト */
+  flex-direction: column;  /* 要素を縦方向に並べる */
+  align-items: center;     /* 横方向の中央揃え */
 }
 
+/* 棋譜入力部分のコンテナ */
 #sgf-container { 
-    margin: 10px 0; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 5px; 
+  margin: 10px 0;           /* 上下に10pxの余白 */
+  display: flex;             /* フレックスボックスでレイアウト */
+  flex-direction: column;    /* 子要素を縦方向に並べる */
+  align-items: center;       /* 横方向中央揃え */
+  gap: 5px;                  /* 子要素間の隙間を5px */
 }
 
+/* 棋譜入力テキストボックス */
 #sgf-input { 
-    font-size: 18px; 
-    width: 90vw; 
-    max-width: 600px; 
+  font-size: 18px;           /* 文字サイズを18pxに */
+  width: 90vw;               /* ビューポート幅の90% */
+  max-width: 600px;          /* 最大幅を600pxに制限 */
 }
 
+/* 棋譜読み込み・クリアボタンのコンテナ */
 #sgf-buttons { 
-    display: flex; 
-    gap: 10px; 
+  display: flex;             /* 横並びにする */
+  gap: 10px;                 /* ボタン間の隙間を10px */
 }
 
+/* 棋譜ボタンのスタイル */
 #sgf-buttons button { 
-    font-size: 18px; 
-    padding: 5px 10px; 
-    cursor: pointer; 
+  font-size: 18px;           /* 文字サイズを18pxに */
+  padding: 5px 10px;         /* 上下5px、左右10pxの余白 */
+  cursor: pointer;           /* ホバー時に手の形カーソル */
 }
 
+/* 座標表示用のテキストエリア */
 #coords-display { 
-    margin-top: 10px; 
-    font-family: monospace; 
-    word-break: break-all; 
+  margin-top: 10px;          /* 上に10pxの余白 */
+  font-family: monospace;    /* 等幅フォントに設定 */
+  word-break: break-all;     /* 長い文字列は折り返す */
 }
 
-/* 動作確認用の棋譜データを非表示 */
-#coords-display { 
-    display: none; 
-}
-
-/* 盤とボタンを揃える */
-#board, #controls { 
-    width: 90vw; /* 盤と同じ幅に */ 
-    max-width: 600px; /* 盤と同じ最大幅 */ 
-    margin: 0 auto; /* 中央寄せ */ 
-}
-
+/* 移動操作ボタンのコンテナ */
 #controls { 
-    display: flex; 
-    justify-content: space-between; /* 両端に揃える */ 
-    gap: 4px; /* ボタン間 */ 
-    width: 90vw; 
-    max-width: 600px; 
-    margin: 5px 0 10px 0; 
+  display: flex;             /* 横並びにする */
+  justify-content: center;   /* 中央揃え */
+  flex-wrap: wrap;           /* 画面幅に応じて折り返し */
+  margin: 5px 0 10px 0;      /* 上5px、下10pxの余白 */
+  gap: 5px;                  /* ボタン間の隙間を5px */
 }
 
+/* 各ナビゲーションボタンの基本スタイル */
 button.nav-btn { 
-    flex: 1 1 auto; /* 幅を均等に */ 
-    min-width: 0; /* iPadで縮小させる */ 
-    height: 45px; /* 高さ固定 */ 
-    font-size: 16px; 
-    font-weight: bold; 
-    border-radius: 6px; /* 通常ボタンの角丸 */ 
-    box-sizing: border-box; 
+  font-size: 20px;           /* 文字サイズ20px */
+  font-weight: bold;         /* 太字 */
+  padding: 10px 15px;        /* 上下10px、左右15pxの余白 */
+  min-width: 60px;           /* 最小幅60pxを確保 */
+  min-height: 50px;          /* 最小高さ50pxを確保 */
+  cursor: pointer;           /* ホバー時に手の形カーソル */
 }
 
+/* 水色ボタンだけの追加スタイル */
 button.nav-btn.blue { 
-    background-color: #00bfff; /* 水色 */ 
-    color: white; 
-    border-radius: 10px; /* 水色ボタンだけ丸める */ 
+  color: white;              /* 文字色を白に */
+  background-color: #00bfff;  /* 背景色を水色に */
 }
 
+/* 将棋盤・碁盤の描画用キャンバス */
 canvas { 
-    background-color: #f5deb3; 
-    touch-action: manipulation; 
-    display: block; 
+  background-color: #f5deb3; /* 背景色を薄い小麦色に */
+  touch-action: manipulation; /* タッチ操作でのスクロールなどを抑制 */
+  display: block;            /* ブロック表示にして余白をリセット */
 }
+
 </style>
 </head>
 <body>
