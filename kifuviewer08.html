@@ -23,32 +23,29 @@
 }
 
 #controls {
-  display: flex;
-  justify-content: space-between;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6ボタン均等割り */
+  gap: 4px;                               /* ボタン間の隙間 */
   width: 90vw;
   max-width: 600px;
   margin: 5px 0 10px 0;
-  height: auto;  /* ここを auto に */
-
 }
 
 button.nav-btn {
-  flex: 1 1 auto;   /* 横方向にだけ伸びる */
-  min-width: 0;
-  box-sizing: border-box;
-  height: 45px;     /* 高さ固定 */
-  max-height: 45px; /* 高さ固定 */
+  height: 45px;
   font-size: 16px;
-  border-radius: 6px;
-
-
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;      /* 通常ボタン角丸 */
+  box-sizing: border-box;   /* パディング込みで幅制御 */
 }
 
 button.nav-btn.blue {
-  color: white;
   background-color: #00bfff; /* 水色 */
+  color: white;
+  border-radius: 6px;      /* 水色ボタンだけ丸める */
 }
+
 
   canvas { background-color:#f5deb3; touch-action:manipulation; display:block; }
 </style>
