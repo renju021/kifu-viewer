@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Go Board Viewer</title>
+<title>Kifu Viewer</title>
 <style>
   body { font-family: sans-serif; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; }
   #sgf-container { margin:10px 0; display:flex; flex-direction:column; align-items:center; gap:5px; }
@@ -11,9 +11,29 @@
   #sgf-buttons { display:flex; gap:10px; }
   #sgf-buttons button { font-size:18px; padding:5px 10px; cursor:pointer; }
   #coords-display { margin-top:10px; font-family:monospace; word-break:break-all; }
-  #controls { display:flex; justify-content:center; flex-wrap:wrap; margin:5px 0 10px 0; gap:5px; }
-  button.nav-btn { font-size:20px; font-weight:bold; padding:10px 15px; min-width:60px; min-height:50px; cursor:pointer; }
-  button.nav-btn.blue { color:white; background-color:blue; }
+  #controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap; /* 横一列 */
+  margin: 5px 0 10px 0;
+  gap: 3px; /* ボタン間の隙間を少し減らす */
+}
+
+  button.nav-btn {
+  font-size: 14px;   /* 少し小さく */
+  font-weight: bold;
+  padding: 6px 8px;  /* 横幅を縮める */
+  min-width: 40px;    /* 最小幅を小さく */
+  min-height: 45px;   /* 高さは少し下げる */
+  cursor: pointer;
+  flex: 1 1 auto;     /* ボタンが均等に横幅を割り振る */
+  text-align: center;
+}
+
+  button.nav-btn.blue {
+  color: white;
+  background-color: #00bfff; /* 水色 */
+}
   canvas { background-color:#f5deb3; touch-action:manipulation; display:block; }
 </style>
 </head>
@@ -198,7 +218,7 @@ function redrawBoard(){
     const cx=margin+sx*step;
     const cy=margin+(BOARD_SIZE-1-sy)*step;
     ctx.beginPath();
-    ctx.arc(cx,cy,step*0.07,0,Math.PI*2);
+    ctx.arc(cx,cy,step*0.12,0,Math.PI*2);//星の大きさ
     ctx.fillStyle='black';
     ctx.fill();
   }
