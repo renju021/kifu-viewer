@@ -5,54 +5,93 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kifu Viewer</title>
 <style>
-  body { font-family: sans-serif; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; }
-  #sgf-container { margin:10px 0; display:flex; flex-direction:column; align-items:center; gap:5px; }
-  #sgf-input { font-size:18px; width:90vw; max-width:600px; }
-  #sgf-buttons { display:flex; gap:10px; }
-  #sgf-buttons button { font-size:18px; padding:5px 10px; cursor:pointer; }
-  #coords-display { margin-top:10px; font-family:monospace; word-break:break-all; }
-
-  /* 動作確認用の棋譜データを非表示 */
-  #coords-display { display: none; }
-
-  /* 盤とボタンを揃える */
-#board, #controls {
-  width: 90vw;          /* 盤と同じ幅に */
-  max-width: 600px;     /* 盤と同じ最大幅 */
-  margin: 0 auto;       /* 中央寄せ */
+body { 
+    font-family: sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
 }
 
-#controls {
-  display: flex;
-  justify-content: space-between; /* 両端に揃える */
-  gap: 4px;                       /* ボタン間 */
-  width: 90vw;
-  max-width: 600px;
-  margin: 5px 0 10px 0;
+#sgf-container { 
+    margin: 10px 0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 5px; 
 }
 
-button.nav-btn {
-  flex: 1 1 auto;      /* 幅を均等に */
-  min-width: 0;        /* iPadで縮小させる */
-  height: 45px;        /* 高さ固定 */
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 6px;  /* 通常ボタンの角丸 */
-  box-sizing: border-box;
+#sgf-input { 
+    font-size: 18px; 
+    width: 90vw; 
+    max-width: 600px; 
 }
 
-button.nav-btn.blue {
-  background-color: #00bfff; /* 水色 */
-  color: white;
-  border-radius: 10px;       /* 水色ボタンだけ丸める */
+#sgf-buttons { 
+    display: flex; 
+    gap: 10px; 
 }
 
+#sgf-buttons button { 
+    font-size: 18px; 
+    padding: 5px 10px; 
+    cursor: pointer; 
+}
 
+#coords-display { 
+    margin-top: 10px; 
+    font-family: monospace; 
+    word-break: break-all; 
+}
 
-  canvas { background-color:#f5deb3; touch-action:manipulation; display:block; }
+/* 動作確認用の棋譜データを非表示 */
+#coords-display { 
+    display: none; 
+}
+
+/* 盤とボタンを揃える */
+#board, #controls { 
+    width: 90vw; /* 盤と同じ幅に */ 
+    max-width: 600px; /* 盤と同じ最大幅 */ 
+    margin: 0 auto; /* 中央寄せ */ 
+}
+
+#controls { 
+    display: flex; 
+    justify-content: space-between; /* 両端に揃える */ 
+    gap: 4px; /* ボタン間 */ 
+    width: 90vw; 
+    max-width: 600px; 
+    margin: 5px 0 10px 0; 
+}
+
+button.nav-btn { 
+    flex: 1 1 auto; /* 幅を均等に */ 
+    min-width: 0; /* iPadで縮小させる */ 
+    height: 45px; /* 高さ固定 */ 
+    font-size: 16px; 
+    font-weight: bold; 
+    border-radius: 6px; /* 通常ボタンの角丸 */ 
+    box-sizing: border-box; 
+}
+
+button.nav-btn.blue { 
+    background-color: #00bfff; /* 水色 */ 
+    color: white; 
+    border-radius: 10px; /* 水色ボタンだけ丸める */ 
+}
+
+canvas { 
+    background-color: #f5deb3; 
+    touch-action: manipulation; 
+    display: block; 
+}
 </style>
 </head>
 <body>
+
+
 
 <div id="sgf-container">
   <input type="text" id="sgf-input" placeholder="棋譜を貼ってください">
