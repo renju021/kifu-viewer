@@ -55,7 +55,7 @@ body {
 #controls { 
   display: flex;             /* 横並びにする */
   justify-content: center;   /* 中央揃え */
-  flex-wrap: wrap;           /* 画面幅に応じて折り返し */
+  flex-wrap: nowrap;  /* 折り返さない */
   margin: 5px 0 10px 0;      /* 上5px、下10pxの余白 */
   gap: 5px;                  /* ボタン間の隙間を5px */
 }
@@ -122,7 +122,7 @@ const ctx = canvas.getContext('2d');
 const coordsDisplay = document.getElementById('coords-display');
 
 function resizeCanvas(){
-  const size = Math.min(window.innerWidth, window.innerHeight)*0.95;
+  const size = Math.min(window.innerWidth*0.95, 600); // 横幅基準
   const dpr = window.devicePixelRatio || 1;
   canvas.style.width = size+'px';
   canvas.style.height = size+'px';
