@@ -46,6 +46,7 @@ body {
 
 /* 座標表示用のテキストエリア */
 #coords-display { 
+  display: none !important; /* JSで書き込まれても表示されない */
   margin-top: 10px;          /* 上に10pxの余白 */
   font-family: monospace;    /* 等幅フォントに設定 */
   word-break: break-all;     /* 長い文字列は折り返す */
@@ -76,7 +77,7 @@ button.nav-btn {
     padding: 15px 20px;    /* パディングを大きく */
     min-width: 70px;       /* 幅を広げる */
     min-height: 55px;      /* 高さを広げる */
-    background-color: red; /* 反映確認用に色を赤に変更 */
+ /*    background-color: red; 反映確認用に色を赤に変更 */
   }
 }
 
