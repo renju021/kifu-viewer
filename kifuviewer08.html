@@ -7,62 +7,61 @@
 <style>
 /* ページ全体の基本設定 */
 body { 
-  font-family: sans-serif; /* 文字のフォントをサンセリフ系に指定 */
-  margin: 0;               /* ページ全体の余白をゼロに */
-  padding: 0;              /* ページ全体の内側余白をゼロに */
-  display: flex;           /* フレックスボックスでレイアウト */
-  flex-direction: column;  /* 要素を縦方向に並べる */
-  align-items: center;     /* 横方向の中央揃え */
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* 棋譜入力部分のコンテナ */
 #sgf-container { 
-  margin: 10px 0;           /* 上下に10pxの余白 */
-  display: flex;             /* フレックスボックスでレイアウト */
-  flex-direction: column;    /* 子要素を縦方向に並べる */
-  align-items: center;       /* 横方向中央揃え */
-  gap: 5px;                  /* 子要素間の隙間を5px */
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 
 /* 棋譜入力テキストボックス */
 #sgf-input { 
-  font-size: 18px;           /* 文字サイズを18pxに */
-  width: 90vw;               /* ビューポート幅の90% */
-  max-width: 800px;          /* 最大幅を800pxに制限 */
+  font-size: 18px;
+  width: 90vw;
+  max-width: 800px;
 }
 
 /* 棋譜読み込み・クリアボタンのコンテナ */
 #sgf-buttons { 
-  display: flex;             /* 横並びにする */
-  gap: 10px;                 /* ボタン間の隙間を10px */
+  display: flex;
+  gap: 10px;
 }
 
 /* 棋譜ボタンのスタイル */
 #sgf-buttons button { 
-  font-size: 18px;           /* 文字サイズを18pxに */
-  padding: 5px 10px;         /* 上下5px、左右10pxの余白 */
-  cursor: pointer;           /* ホバー時に手の形カーソル */
+  font-size: 18px;
+  padding: 5px 10px;
+  cursor: pointer;
 }
 
 /* 座標表示用のテキストエリア */
 #coords-display { 
-  display: none !important; /* JSで書き込まれても表示されない */
-  margin-top: 10px;          /* 上に10pxの余白 */
-  font-family: monospace;    /* 等幅フォントに設定 */
-  word-break: break-all;     /* 長い文字列は折り返す */
+  display: none !important;
+  margin-top: 10px;
+  font-family: monospace;
+  word-break: break-all;
 }
 
 /* 移動操作ボタンのコンテナ */
 #controls { 
-  display: flex;             /* 横並びにする */
-  justify-content: center;   /* 中央揃え */
-  flex-wrap: nowrap;  /* 折り返さない */
-  margin: 5px 0 10px 0;      /* 上5px、下10pxの余白 */
-  gap: 5px;                  /* ボタン間の隙間を5px */
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  margin: 5px 0 10px 0;
+  gap: 5px;
 }
 
-/* 各ナビゲーションボタンの基本スタイル */
-/* デフォルトはiPhone用サイズ */
+/* 各ナビゲーションボタン */
 button.nav-btn {
   font-size: 18px;
   padding: 10px 15px;
@@ -73,35 +72,28 @@ button.nav-btn {
 /* iPad以上の画面用 */
 @media (min-width: 768px) {
   button.nav-btn {
-    font-size: 20px;       /* 文字を大きく */
-    padding: 15px 20px;    /* パディングを大きく */
-    min-width: 70px;       /* 幅を広げる */
-    min-height: 55px;      /* 高さを広げる */
- /*    background-color: red; 反映確認用に色を赤に変更 */
+    font-size: 20px;
+    padding: 15px 20px;
+    min-width: 70px;
+    min-height: 55px;
   }
 }
 
-
-
-
-/* 水色ボタンだけの追加スタイル */
+/* 水色ボタン */
 button.nav-btn.blue { 
-  color: white;              /* 文字色を白に */
-  background-color: #00bfff;  /* 背景色を水色に */
+  color: white;
+  background-color: #00bfff;
 }
 
 /* 将棋盤・碁盤の描画用キャンバス */
 canvas { 
-  background-color: #F5C864; /* 背景色を変更 */
-  touch-action: manipulation; /* タッチ操作でのスクロールなどを抑制 */
-  display: block;            /* ブロック表示にして余白をリセット */
+  background-color: #F5C864;
+  touch-action: manipulation;
+  display: block;
 }
-
 </style>
 </head>
 <body>
-
-
 
 <div id="sgf-container">
   <input type="text" id="sgf-input" placeholder="棋譜を貼ってください">
@@ -136,7 +128,7 @@ const ctx = canvas.getContext('2d');
 const coordsDisplay = document.getElementById('coords-display');
 
 function resizeCanvas(){
-  const size = Math.min(window.innerWidth*0.95, 600); // 横幅基準
+  const size = Math.min(window.innerWidth*0.95, 600);
   const dpr = window.devicePixelRatio || 1;
   canvas.style.width = size+'px';
   canvas.style.height = size+'px';
@@ -257,77 +249,105 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // --------------------
-// 描画
+// 描画関数（修正版：3桁対応）
 // --------------------
 function redrawBoard(){
-  const size=parseFloat(canvas.style.width);
-  const margin=size*0.07;
-  const step=(size-2*margin)/(BOARD_SIZE-1);
-  ctx.clearRect(0,0,size,size);
+  const size = parseFloat(canvas.style.width);
+  const margin = size * 0.07;
+  const step = (size - 2 * margin) / (BOARD_SIZE - 1);
+  ctx.clearRect(0, 0, size, size);
 
-  ctx.strokeStyle='black';
-  ctx.lineWidth=1;
-  for(let i=0;i<BOARD_SIZE;i++){
+  // 盤線
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < BOARD_SIZE; i++) {
     ctx.beginPath();
-    ctx.moveTo(margin,margin+i*step);
-    ctx.lineTo(size-margin,margin+i*step);
+    ctx.moveTo(margin, margin + i * step);
+    ctx.lineTo(size - margin, margin + i * step);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(margin+i*step,margin);
-    ctx.lineTo(margin+i*step,size-margin);
+    ctx.moveTo(margin + i * step, margin);
+    ctx.lineTo(margin + i * step, size - margin);
     ctx.stroke();
   }
 
-  for(const [sx,sy] of STAR_POINTS){
-    const cx=margin+sx*step;
-    const cy=margin+(BOARD_SIZE-1-sy)*step;
+  // 星
+  for (const [sx, sy] of STAR_POINTS) {
+    const cx = margin + sx * step;
+    const cy = margin + (BOARD_SIZE - 1 - sy) * step;
     ctx.beginPath();
-    ctx.arc(cx,cy,step*0.12,0,Math.PI*2);//星の大きさ
-    ctx.fillStyle='black';
+    ctx.arc(cx, cy, step * 0.12, 0, Math.PI * 2);
+    ctx.fillStyle = 'black';
     ctx.fill();
   }
 
-  ctx.fillStyle='black';
-  ctx.font=`${step*0.45}px sans-serif`;
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  for(let i=0;i<BOARD_SIZE;i++){
-    const x=margin+i*step;
-    const y=size-margin/2;
-    ctx.fillText(String.fromCharCode(97+i),x,y);
+  // 座標文字
+  ctx.fillStyle = 'black';
+  ctx.font = `${step * 0.45}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    const x = margin + i * step;
+    const y = size - margin / 2;
+    ctx.fillText(String.fromCharCode(97 + i), x, y);
   }
-  for(let i=0;i<BOARD_SIZE;i++){
-    const x=margin/2;
-    const y=margin+(BOARD_SIZE-1-i)*step;
-    ctx.fillText((i+1).toString(),x,y);
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    const x = margin / 2;
+    const y = margin + (BOARD_SIZE - 1 - i) * step;
+    ctx.fillText((i + 1).toString(), x, y);
   }
 
-  const radius=step*0.43;
-  for(let i=0;i<currentMove;i++){
-    const [x,y]=moves[i];
-    const cx=margin+x*step;
-    const cy=margin+y*step;
-    const color=i%2===0?'black':'white';
+  // 石と手数
+  const radius = step * 0.43;
+  for (let i = 0; i < currentMove; i++) {
+    const [x, y] = moves[i];
+    const cx = margin + x * step;
+    const cy = margin + y * step;
+    const color = i % 2 === 0 ? 'black' : 'white';
 
-    ctx.fillStyle=color;
+    // 石の描画
+    ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(cx,cy,radius,0,Math.PI*2);
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle=(i===currentMove-1)?'red':(color==='black'?'white':'black');
-    ctx.font=`bold ${radius*1.25}px sans-serif`;
-    ctx.fillText(i+1,cx,cy);
+    // 手数の描画（桁数で倍率調整）
+    const moveNumber = i + 1;
+    const digitCount = moveNumber.toString().length;
+    let fontScale;
+    switch (digitCount) {
+      case 1:
+      case 2:
+        fontScale = 1.25;
+        break;
+      case 3:
+        fontScale = 1.1;
+        break;
+      default:
+        fontScale = 0.75;
+        break;
+    }
+
+    ctx.fillStyle = (i === currentMove - 1) ? 'red' : (color === 'black' ? 'white' : 'black');
+    ctx.font = `bold ${radius * fontScale}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(moveNumber, cx, cy);
   }
 
+  // 内部座標表示用
   let displayStr = '';
-  for(const [x,y] of moves){
+  for (const [x, y] of moves) {
     displayStr += x.toString(16) + y.toString(16);
   }
   coordsDisplay.textContent = displayStr;
 }
 
+// --------------------
+// 移動関数
+// --------------------
 function gotoMove(n){
-  currentMove=Math.max(0,Math.min(n,moves.length));
+  currentMove = Math.max(0, Math.min(n, moves.length));
   redrawBoard();
 }
 
